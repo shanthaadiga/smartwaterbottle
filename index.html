@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydraSync | Your Personal Hydration Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <div id="auth-page" class="page active">
+        <div class="auth-card">
+            <div class="brand-header">
+                <div class="brand-icon-wrapper"><i class="fas fa-droplet"></i></div>
+                <h1>HydraSync</h1>
+                <p class="tagline">Your personal healthy hydration partner</p>
+            </div>
+            <form id="register-form" onsubmit="event.preventDefault(); handleRegistration();">
+                <h2>Set Up Your Profile</h2>
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="reg-name" required placeholder="e.g. Rahul Sharma">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="reg-phone" required placeholder="10-Digit Mobile Number" pattern="[0-9]{10}" maxlength="10">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="reg-age" required min="1" max="120" placeholder="Years">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="reg-gender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="reg-weight" required min="10" max="300" placeholder="e.g. 65">
+                    </div>
+                    <div class="form-group">
+                        <label>Height (cm)</label>
+                        <input type="number" id="reg-height" required min="50" max="250" placeholder="e.g. 170">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Go to Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="page">
+        <header id="main-panel" class="system-banner">
+            <div class="panel-top-row">
+                <div class="app-title-group">
+                    <h1>HydraSync <span class="version-tag">Premium</span></h1>
+                    <p class="tagline">Making healthy hydration simple and rewarding every day</p>
+                </div>
+                <div class="header-right-controls">
+                    <div class="score-display">
+                        <i class="fas fa-star"></i> <span id="panel-points">0</span> Reward Tokens
+                    </div>
+                    <button onclick="toggleFullscreenMode()" class="action-icon-btn" title="Toggle Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <div class="profile-area">
+                        <button id="profile-btn" class="profile-toggle-btn">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <div id="profile-dropdown" class="profile-dropdown hidden">
+                            <h3>My Profile Details</h3>
+                            <hr>
+                            <p><strong>Name:</strong> <span id="prof-name">-</span></p>
+                            <p><strong>Phone:</strong> <span id="prof-phone">-</span></p>
+                            <p><strong>Gender:</strong> <span id="prof-gender">-</span></p>
+                            <p><strong>Age:</strong> <span id="prof-age">-</span> yrs</p>
+                            <p><strong>Metrics:</strong> <span id="prof-weight">-</span>kg / <span id="prof-height">-</span>cm</p>
+                            <hr>
+                            <p class="target-indicator">Daily Goal: <span id="prof-target">2.00</span>L</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-bottom-row">
+                <div id="weather-widget">
+                    <i class="fas fa-sun weather-icon"></i>
+                    <div class="weather-info">
+                        <span id="current-temp">28°C</span> | 
+                        <span id="current-condition">Sunny Weather</span> | 
+                        <span id="current-location"><i class="fas fa-location-dot"></i> Bengaluru, IN</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <nav class="navbar">
+            <button class="nav-item active" onclick="navigateToTab('water-tracker', this)">
+                <i class="fas fa-glass-water"></i> 1. My Water Log & Progress
+            </button>
+            <button class="nav-item" onclick="navigateToTab('daily-questionnaire-tab', this)">
+                <i class="fas fa-heart"></i> 2. Daily Health Check
+            </button>
+            <button class="nav-item" onclick="navigateToTab('recipes-fruits', this)">
+                <i class="fas fa-lemon"></i> 3. Refreshing Infusions & Fruits
+            </button>
+            <button class="nav-item" onclick="navigateToTab('rewards-ledger', this)">
+                <i class="fas fa-gift"></i> 4. Student Arcade & Campus Store
+            </button>
+        </nav>
+
+        <div class="content-container">
+            
+            <div id="water-tracker" class="tab-view active-view">
+                <div class="section-title-wrapper">
+                    <h2>Welcome back! Here is your Hydration Tracking Overview</h2>
+                    <p>All metrics sync directly from your smart bottle hardware device. Drink water to see instant updates!</p>
+                </div>
+                
+                <main class="dashboard-grid">
+                    <section class="card">
+                        <h3 class="card-header-accent"><i class="fas fa-link"></i> Smart Bottle Connection</h3>
+                        <p class="card-section-desc">Connect your physical water bottle hardware link below to log drinks automatically.</p>
+                        
+                        <div class="connection-interface-bar">
+                            <button id="connect-serial-btn" onclick="initiateHardwareSerialConnection()" class="btn-hardware-connect">
+                                <i class="fas fa-bluetooth"></i> Connect Smart Bottle via Bluetooth / Serial
+                            </button>
+                            <span id="hardware-status-badge" class="hw-badge hw-disconnected">Bottle Offline</span>
+                        </div>
+
+                        <div class="telemetry-dials-layout">
+                            <div class="dial-node">
+                                <div class="dial-header">
+                                    <span class="lbl">Last Sip Detected</span>
+                                    <i class="fas fa-clock dial-icon-blue"></i>
+                                </div>
+                                <div class="val timestamp-text-glow" id="last-consumption-timestamp">Waiting for first sip...</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="card telemetry-visualizer-card">
+                        <h3 class="card-header-accent"><i class="fas fa-circle-notch"></i> Today's Goal Progress</h3>
+                        
+                        <div class="gauge-center-box">
+                            <div class="circular-progress-frame" id="radial-progress-element">
+                                <div class="value-container" id="gauge-percentage-value">0%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="gauge-footer-stats">
+                            <div class="stat-row">
+                                <div class="stat-label-group">
+                                    <div class="indicator-dot dot-blue"></div>
+                                    <span class="lbl">Total Drank Today</span>
+                                </div>
+                                <span class="val-highlight"><span id="gauge-consumed-text">0</span> mL</span>
+                            </div>
+                            <div class="stat-divider"></div>
+                            <div class="stat-row">
+                                <div class="stat-label-group">
+                                    <div class="indicator-dot dot-teal"></div>
+                                    <span class="lbl">Today's Calculated Goal</span>
+                                </div>
+                                <span class="val-muted"><span id="gauge-target-text">2000</span> mL</span>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <div class="section-title-wrapper style-spacer">
+                    <h2>How is your body feeling right now?</h2>
+                    <p>Real-time analytics comparing your current schedule against your previous patterns.</p>
+                </div>
+
+                <div class="analysis-row-grid">
+                    <div class="card analysis-card highlight-analysis">
+                        <div class="analysis-header-badge status-good" id="health-status-badge">Analyzing Status...</div>
+                        <h3>Today's Analytics Breakdown</h3>
+                        <div class="analysis-metric-group">
+                            <div class="metric-item">
+                                <span class="lbl">Drinking Frequency</span>
+                                <span class="val" id="frequency-text">0 times / hour</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="lbl">Hydration Quality Message</span>
+                                <p class="desc" id="health-status-message">Please take your first drink through your smart bottle to evaluate your hydration curve.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card analysis-card standard-analysis">
+                        <div class="analysis-header-badge status-past">Yesterday's Total</div>
+                        <h3>Previous Day Review</h3>
+                        <div class="analysis-metric-group">
+                            <div class="metric-item">
+                                <span class="lbl">Total Volume Achieved</span>
+                                <span class="val accent-teal-text">2.5 Liters</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="lbl">Performance Note</span>
+                                <p class="desc">Excellent! You completed 100% of your requested target volume baseline yesterday. Let's try to match it today.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title-wrapper style-spacer">
+                    <div class="title-with-actions-row">
+                        <div>
+                            <h2>Your Water Habits Graph</h2>
+                            <p>Switch between your live daily hourly intake view or review your overall 7-day track trends.</p>
+                        </div>
+                        <div class="graph-toggle-buttons-group">
+                            <button class="btn-graph-toggle active" id="btn-chart-daily" onclick="toggleGraphViewMode('daily')">Daily (Hourly)</button>
+                            <button class="btn-graph-toggle" id="btn-chart-weekly" onclick="toggleGraphViewMode('weekly')">Weekly (7-Day Progress)</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card full-width graph-card-wrapper">
+                    <canvas id="historicalLongitudinalChart"></canvas>
+                </div>
+            </div>
+            
+            <div id="daily-questionnaire-tab" class="tab-view">
+                <div class="section-title-wrapper">
+                    <h2>Daily Health Log Check</h2>
+                    <p>Share how your body feels today so we can adjust your personalized target goals automatically.</p>
+                </div>
+                <main class="dashboard-grid">
+                    <section class="card">
+                        <form id="questionnaire-form" onsubmit="event.preventDefault();">
+                            <h3 class="card-header-accent"><i class="fas fa-smile"></i> How are you feeling right now?</h3>
+                            
+                            <div class="form-group">
+                                <label>Current Energy Level</label>
+                                <select id="survey-energy">
+                                    <option value="very-energetic">⚡ High Energy / Feeling Great</option>
+                                    <option value="energetic" selected>✨ Good / Normal Energy</option>
+                                    <option value="neutral">😐 Feeling Okay / Average</option>
+                                    <option value="tired">🥱 Tired / A bit slow</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>How thirsty are you feeling?</label>
+                                <select id="survey-hydration-rate">
+                                    <option value="excellent">💧 Not Thirsty / Feeling Good</option>
+                                    <option value="good" selected>🥤 Normally Thirsty</option>
+                                    <option value="average">🥛 Moderately Thirsty</option>
+                                    <option value="poor">⚠️ Very Thirsty / Dry Lips</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Any physical discomfort?</label>
+                                <select id="survey-symptoms">
+                                    <option value="none" selected>✅ No discomfort / Feeling completely fine</option>
+                                    <option value="headache">🤕 Mild Headache</option>
+                                    <option value="dry-mouth">🌵 Dry Mouth / Sticky Lips</option>
+                                    <option value="fatigue">💤 Sore Body / Muscle Cramps</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>How was your sleep last night?</label>
+                                <select id="survey-sleep">
+                                    <option value="less-5">Poor Sleep (Less than 5 hours)</option>
+                                    <option value="5-6">Fair Sleep (5 to 6 hours)</option>
+                                    <option value="7-8" selected>Great Sleep (7 to 8 hours)</option>
+                                    <option value="more-8">Long Rest (More than 8 hours)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Workout / Activity Plan Today</label>
+                                <select id="survey-exercise">
+                                    <option value="none" selected>Resting / No Exercise planned today</option>
+                                    <option value="light">🚴 Light Exercise - Quick Walk or Yoga (+350ml)</option>
+                                    <option value="moderate">🏃 Moderate Workout - Gym session or Jogging (+500ml)</option>
+                                    <option value="intense">🏋️ Heavy Training - Sports match or Intense cardio (+750ml)</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="generatePremiumSuggestions()" class="btn-secondary">Recalibrate My Target Goal</button>
+                        </form>
+                    </section>
+                    
+                    <section class="insights-panel-wrapper">
+                        <div id="suggestions-box" class="premium-insights-card">
+                            <div class="insight-glow-header">
+                                <h3><i class="fas fa-heartbeat"></i> Your Updated Guide For Today</h3>
+                            </div>
+                            <div class="insight-body">
+                                <div class="metric-block-premium">
+                                    <span class="metric-label">Your New Water Intake Goal</span>
+                                    <div class="metric-value-display" id="intake-target">2.00 <span class="unit-lbl">Liters</span></div>
+                                </div>
+                                <div class="insight-message-row">
+                                    <i class="fas fa-comment-medical message-icon"></i>
+                                    <p id="fruit-suggestion">Submit your health log details on the left to see your smart recommendations...</p>
+                                }</div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+
+            <div id="recipes-fruits" class="tab-view">
+                <div class="section-title-wrapper">
+                    <h2>Healthy Drink Infusions & Water-Rich Fruits</h2>
+                    <p>Keep hydration fun and flavorful. Check any dietary tags below to filter things you are sensitive to.</p>
+                </div>
+
+                <div class="card full-width allergy-filter-deck">
+                    <h3><i class="fas fa-filter"></i> Ingredient Allergy Filter</h3>
+                    <p class="card-section-desc">Check any ingredients you wish to avoid. We'll automatically hide recipes or fruits containing them:</p>
+                    <div class="allergy-checkbox-grid">
+                        <label class="allergy-tag-label"><input type="checkbox" value="citrus" onchange="evaluateAllergyFilters()"> Citrus Fruits</label>
+                        <label class="allergy-tag-label"><input type="checkbox" value="mint" onchange="evaluateAllergyFilters()"> Mint Leaves</label>
+                        <label class="allergy-tag-label"><input type="checkbox" value="ginger" onchange="evaluateAllergyFilters()"> Ginger Root</label>
+                        <label class="allergy-tag-label"><input type="checkbox" value="pineapple" onchange="evaluateAllergyFilters()"> Pineapple</label>
+                        <label class="allergy-tag-label"><input type="checkbox" value="berries" onchange="evaluateAllergyFilters()"> Mixed Berries</label>
+                    </div>
+                </div>
+
+                <main class="dashboard-grid">
+                    <section class="card full-width">
+                        <div class="tabs-control-bar">
+                            <button class="tab-selector active" onclick="switchTab('recipes', event)"><i class="fas fa-wine-glass"></i> Flavorful Water Recipes</button>
+                            <button class="tab-selector" onclick="switchTab('fruits', event)"><i class="fas fa-apple-whole"></i> High-Water Content Fruits</button>
+                        </div>
+                        
+                        <div id="recipes-content" class="tab-content active-content">
+                            <div class="list-container-grid" id="recipes-rendering-grid"></div>
+                        </div>
+                        
+                        <div id="fruits-content" class="tab-content">
+                            <div class="list-container-grid" id="fruits-rendering-grid"></div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+
+            <div id="rewards-ledger" class="tab-view">
+                <div class="section-title-wrapper">
+                    <h2>Student Token Arcade & Campus Hub Marketplace</h2>
+                    <p>Spin the daily prize wheel and redeem your water habit tokens for campus meal coupons or shop discount vouchers.</p>
+                </div>
+                <main class="arcade-container-layout">
+                    <section class="arcade-main-card">
+                        <div class="arcade-header-status">
+                            <div class="status-token">
+                                <span class="lbl">Your Reward Wallet Balance</span>
+                                <div class="val"><i class="fas fa-coins text-gold"></i> <span id="arcade-points-display">0</span> Tokens</div>
+                            </div>
+                            <div class="action-row">
+                                <button onclick="resetPoints()" class="btn-reset-link">Reset Simulation Progress</button>
+                            </div>
+                        </div>
+                        
+                        <div class="wheel-arena-wrapper">
+                            <div class="wheel-box-frame">
+                                <div class="wheel-pointer"></div>
+                                <canvas id="wheel-canvas-element" width="340" height="340"></canvas>
+                                <button id="spin-trigger-btn" onclick="executeArcadeWheelSpin()" class="wheel-center-button">SPIN</button>
+                            </div>
+                            <div class="wheel-rules">
+                                <h4><i class="fas fa-star text-gold"></i> The Daily Bonus Wheel</h4>
+                                <p id="wheel-status-msg">Click SPIN to test your luck! Any tokens won will instantly add to your wallet balance for shop redemptions.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="section-title-wrapper style-spacer">
+                        <h2>Campus Hub & Eco Hydration Store</h2>
+                        <p>Turn your healthy lifestyle into premium lifestyle gear adjustments and campus Block vouchers.</p>
+                    </div>
+                    <div class="rewards-store-grid" id="marketplace-rendering-grid"></div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
