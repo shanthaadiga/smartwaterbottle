@@ -1,5 +1,5 @@
 // =========================================================================
-// HYDRASYNC OPERATIONAL CONTROL LOGIC - HARDWARE INTELLIGENT
+// HYDRASYNC OPERATIONAL CONTROL LOGIC - HARDWARE INTELLIGENT & FIXED LOCATION
 // =========================================================================
 
 let userData = {
@@ -128,6 +128,51 @@ const wheelSegments = [
     { label: "500 Pts", color: "#7c3aed", value: 500 },
     { label: "0 Pts", color: "#ef4444", value: 0 }
 ];
+
+// --- LIVE WEATHER ENGINE (FIXED TO DSCE CAMPUS) ---
+async function fetchLiveLocationAndWeather() {
+    const iconEl = document.getElementById('weather-status-icon');
+    const tempEl = document.getElementById('current-temp');
+    const condEl = document.getElementById('current-condition');
+    const locEl = document.getElementById('current-location');
+
+    // Locked Coordinates for Dayananda Sagar College of Engineering (DSCE)
+    const lat = "12.91";
+    const lon = "77.57";
+    
+    try {
+        // Fetch live weather data directly using DSCE coordinates
+        const response = await fetch(`https://wttr.in/${lat},${lon}?format=j1`);
+        if (!response.ok) throw new Error("API Failure");
+        const data = await response.json();
+        
+        const currentTemp = data.current_condition[0].temp_C;
+        const weatherDesc = data.current_condition[0].weatherDesc[0].value;
+
+        // Update UI elements instantly with real data
+        tempEl.innerText = `${currentTemp}°C`;
+        condEl.innerText = weatherDesc;
+        locEl.innerHTML = `<i class="fas fa-location-dot"></i> DSCE Campus, Bengaluru`;
+        
+        // Dynamic icon swap based on temperature threshold values
+        iconEl.className = parseInt(currentTemp) > 28 ? "fas fa-fire weather-icon" : "fas fa-cloud-sun weather-icon";
+        
+        // Auto-recalibrate target benchmarks dynamically if the campus is experiencing hot days
+        if(parseInt(currentTemp) > 30) {
+            userData.calculatedBaseTarget += 300; 
+            updateVisualMetricsProgressGauges();
+        }
+    } catch (err) {
+        fallbackStaticWeather("Data offline");
+    }
+}
+
+function fallbackStaticWeather(reason) {
+    document.getElementById('weather-status-icon').className = "fas fa-sun weather-icon";
+    document.getElementById('current-temp').innerText = "28°C";
+    document.getElementById('current-condition').innerText = `Sunny (${reason})`;
+    document.getElementById('current-location').innerHTML = `<i class="fas fa-location-dot"></i> DSCE Campus, Bengaluru`;
+}
 
 function navigateToTab(targetViewId, clickedTabElement) {
     document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active-view'));
@@ -580,6 +625,9 @@ async function readHardwareStreamChannel() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Fire weather logic instantly for DSCE context
+    fetchLiveLocationAndWeather();
+
     document.getElementById('profile-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('profile-dropdown').classList.toggle('hidden');
